@@ -8,7 +8,7 @@
 
 
 type
-  subhook_t {.final, pure, importc.} = object
+  subhook_t* {.final, pure.} = object
 
 proc subhook_new(src, dst: pointer, options: int): ptr subhook_t {.subhook.}
 proc subhook_free(hook: ptr subhook_t) {.subhook.}
