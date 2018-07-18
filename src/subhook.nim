@@ -31,8 +31,11 @@ proc initHook*(src, dest: pointer, options = 0): Hook {.inline.} =
 proc initHook*(src, dest: int, options = 0): Hook {.inline.} =
   initHook(cast[pointer](src), cast[pointer](dest), options)
 
-proc initHook*(src, dest: int, options = 0): Hook {.inline.} =
-  result.impl = subhook_new(cast[pointer](src), cast[pointer](dest), options)
+proc initHook*(src: pointer, dest: int, options = 0): Hook {.inline.} =
+  initHook(src, cast[pointer](dest), options)
+
+proc initHook*(src: int, dest: pointer, options = 0): Hook {.inline.} =
+  initHook(cast[pointer](src), dest, options)
 
 proc free*(hook: Hook) {.inline.} =
   subhook_free(hook.impl)
@@ -61,20 +64,34 @@ when isMainModule:
 
   var hook: Hook
 
-  proc foo(x: int) =
-    echo &"foo(x) called"
+  proc foo(x: int): int =
+    result = x * x
+    echo &"foo({x}) = {result}"
 
-  proc bar(x: int) =
-    echo &"bar(x) called"
+  proc bar(x: int): int =
+    echo &"bar({x}) called"
     hook.remove()
-    foo(x)
+    result = foo(x)
     hook.install()
+
+  proc foobar(x: int): int =
+    result = x * 2
+    echo &"foobar({x}) = {result}"
 
   hook = initHook(foo, bar)
   hook.install()
 
-  foo(1)
+  assert foo(3) == 9
 
   hook.remove()
   hook.free()
+
+  var foobar_hook = initHook(foo, foobar)
+  foobar_hook.install()
+
+  assert foo(3) == 6
+
+  foobar_hook.remove()
+  foobar_hook.free()
+
 
