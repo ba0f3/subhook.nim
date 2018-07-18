@@ -2,7 +2,7 @@
 
 {.pragma: subhook,
   cdecl,
-  header: "../private/subhook/subhook.h",
+  importc,
   discardable
 .}
 
