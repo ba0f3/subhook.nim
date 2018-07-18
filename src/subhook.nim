@@ -1,5 +1,4 @@
 {.compile: "private/subhook/subhook.c".}
-{.passL: "-DSUBHOOK_STATIC".}
 
 {.pragma: subhook,
   cdecl,
