@@ -45,7 +45,7 @@ proc getSource*(hook: Hook): pointer {.inline.} =
 proc getDest*(hook: Hook): pointer {.inline.} =
   subhook_get_dst(hook.impl)
 
-proc getTramoline*(hook: Hook): pointer {.inline.} =
+proc getTrampoline*(hook: Hook): pointer {.inline.} =
   subhook_get_trampoline(hook.impl)
 
 proc install*(hook: Hook): int {.inline, discardable.} =
