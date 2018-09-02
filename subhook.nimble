@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.2"
+version       = "0.4.2.0"
 author        = "Huy Doan"
 description   = "subhook wrapper"
 license       = "BSD2"
