@@ -3,6 +3,7 @@
 {.pragma: subhook,
   cdecl,
   importc,
+  header: basename(currentSourcePath()) & "/private/subhook/subhook.h"
   discardable
 .}
 
