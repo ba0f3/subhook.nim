@@ -1,9 +1,11 @@
+import ospaths
+
 {.compile: "private/subhook/subhook.c".}
 
 {.pragma: subhook,
   cdecl,
   importc,
-  header: basename(currentSourcePath()) & "/private/subhook/subhook.h"
+  header: parentDir(currentSourcePath()) & "/private/subhook/subhook.h"
   discardable
 .}
 
@@ -11,7 +13,11 @@
 type
   subhook_t* {.final, pure.} = object
 
-proc subhook_new(src, dst: pointer, options: int): ptr subhook_t {.subhook.}
+  subhook_flags* {.pure.} = enum
+    NONE
+    SUBHOOK_64BIT_OFFSET = 1
+
+proc subhook_new(src, dst: pointer, flags: subhook_flags): ptr subhook_t {.subhook.}
 proc subhook_free(hook: ptr subhook_t) {.subhook.}
 proc subhook_get_src(hook: ptr subhook_t): pointer {.subhook.}
 proc subhook_get_dst(hook: ptr subhook_t): pointer {.subhook.}
@@ -25,17 +31,17 @@ type
   Hook* = object
     impl: ptr subhook_t
 
-proc initHook*(src, dest: pointer, options = 0): Hook {.inline.} =
-  result.impl = subhook_new(src, dest, options)
+proc initHook*(src, dest: pointer, flags: subhook_flags = NONE): Hook {.inline.} =
+  result.impl = subhook_new(src, dest, flags)
 
-proc initHook*(src, dest: int, options = 0): Hook {.inline.} =
-  initHook(cast[pointer](src), cast[pointer](dest), options)
+proc initHook*(src, dest: int, flags = NONE): Hook {.inline.} =
+  initHook(cast[pointer](src), cast[pointer](dest), flags)
 
-proc initHook*(src: pointer, dest: int, options = 0): Hook {.inline.} =
-  initHook(src, cast[pointer](dest), options)
+proc initHook*(src: pointer, dest: int, flags = NONE): Hook {.inline.} =
+  initHook(src, cast[pointer](dest), flags)
 
-proc initHook*(src: int, dest: pointer, options = 0): Hook {.inline.} =
-  initHook(cast[pointer](src), dest, options)
+proc initHook*(src: int, dest: pointer, flags = NONE): Hook {.inline.} =
+  initHook(cast[pointer](src), dest, flags)
 
 proc free*(hook: Hook) {.inline.} =
   subhook_free(hook.impl)
