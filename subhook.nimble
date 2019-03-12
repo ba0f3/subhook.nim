@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.5.2"
+version       = "0.5.3"
 author        = "Huy Doan"
 description   = "subhook wrapper"
 license       = "BSD2"
@@ -8,4 +8,4 @@ srcDir        = "src"
 
 # Dependencies
 
-requires "nim >= 0.18.1"
+requires "nim >= 0.19.4"
