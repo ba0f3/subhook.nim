@@ -1,4 +1,4 @@
-import ospaths
+import os
 
 {.compile: "private/subhook/subhook.c".}
 {.passC: "-DSUBHOOK_STATIC".}
