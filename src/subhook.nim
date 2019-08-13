@@ -109,5 +109,3 @@ when isMainModule:
 
   foobar_hook.remove()
   foobar_hook.free()
-
-
