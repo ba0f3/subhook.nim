@@ -5,28 +5,47 @@ macro fptr*(body: untyped) : untyped =
   ## and then create a proc pointer to an address if specified
   if body.kind != nnkProcDef:
     return
-  let
+
+  var
+    name, procName: string
+    isExported = false
+  if body[0].kind == nnkIdent:
     name = $body[0]
-    procName = name & "Proc"
+  else:
+    name = $body[0][1]
+    isExported = true
+  procName = name & "Proc"
   var
     typeSection = newNimNode(nnkTypeSection)
     typeDef = newNimNode(nnkTypeDef)
     letSection = newNimNode(nnkLetSection)
     identDef = newNimNode(nnkIdentDefs)
+    pragma = newNimNode(nnkPragma)
 
   typeSection.add(typeDef)
   letSection.add(identDef)
 
-  typeDef.add(postfix(ident(procName), "*"))
+  # pragma
+  if body[4].kind == nnkPragma:
+    pragma = body[4]
+  pragma.add(ident("noconv"))
+
+  if isExported:
+    typeDef.add(postfix(ident(procName), "*"))
+  else:
+    typeDef.add(ident(procName))
   typeDef.add(newEmptyNode())
   typeDef.add(newNimNode(nnkProcTy)
     .add(body[3]) # FormalParams
-    .add(newNimNode(nnkPragma).add(ident("noconv"))) # {.noconv.}
+    .add(pragma) # pragmas
   )
   result = newStmtList(typeSection)
 
   if body[6].kind == nnkStmtList and body[6][0].kind == nnkIntLit:
-    identDef.add(postfix(ident(name), "*"))
+    if isExported:
+      identDef.add(postfix(ident(name), "*"))
+    else:
+      identDef.add(ident(name))
     identDef.add(newEmptyNode())
     identDef.add(newNimNode(nnkCast)
       .add(ident(procName))
