@@ -14,7 +14,7 @@ type
   subhook_flags* {.pure.} = enum
     NONE
     SUBHOOK_64BIT_OFFSET = 1
-
+  Hook* = ptr subhook_struct
   subhook_struct* {.bycopy.} = object
     installed*: int
     src*: pointer
@@ -25,54 +25,31 @@ type
     jmp_size*: csize
     trampoline_size*: csize
     trampoline_len*: csize
-
   subhook_t* = ptr subhook_struct
 
-proc subhook_new(src, dst: pointer, flags: subhook_flags): subhook_t {.subhook.}
-proc subhook_free(hook: subhook_t) {.subhook.}
-proc subhook_get_src(hook: subhook_t): pointer {.subhook.}
-proc subhook_get_dst(hook: subhook_t): pointer {.subhook.}
-proc subhook_get_trampoline(hook: subhook_t): pointer {.subhook.}
-proc subhook_install(hook: subhook_t): cint {.subhook.}
-proc subhook_is_installed(hook: subhook_t): cint {.subhook.}
-proc subhook_remove(hook: subhook_t): cint {.subhook.}
+#[ C API ]#
+proc subhook_new*(src, dst: pointer, flags: subhook_flags): subhook_t {.subhook.}
+proc subhook_free*(hook: subhook_t) {.subhook.}
+proc subhook_get_src*(hook: subhook_t): pointer {.subhook.}
+proc subhook_get_dst*(hook: subhook_t): pointer {.subhook.}
+proc subhook_get_trampoline*(hook: subhook_t): pointer {.subhook.}
+proc subhook_install*(hook: subhook_t): cint {.subhook.}
+proc subhook_is_installed*(hook: subhook_t): cint {.subhook.}
+proc subhook_remove*(hook: subhook_t): cint {.subhook.}
 
 
-type
-  Hook* = ptr subhook_struct
-
-proc initHook*(src, dest: pointer, flags: subhook_flags = NONE): Hook {.inline.} =
-  result = subhook_new(src, dest, flags)
-
-proc initHook*(src, dest: int, flags = NONE): Hook  {.inline.} =
-  result = subhook_new(cast[pointer](src), cast[pointer](dest), flags)
-
-proc initHook*(src: pointer, dest: int, flags = NONE): Hook {.inline.} =
-  initHook(src, cast[pointer](dest), flags)
-
-proc initHook*(src: int, dest: pointer, flags = NONE): Hook {.inline.} =
-  initHook(cast[pointer](src), dest, flags)
-
-proc free*(hook: Hook) {.inline.} =
-  subhook_free(hook)
-
-proc getSource*(hook: Hook): pointer {.inline.} =
-  subhook_get_src(hook)
-
-proc getDest*(hook: Hook): pointer {.inline.} =
-  subhook_get_dst(hook)
-
-proc getTrampoline*(hook: Hook): pointer {.inline.} =
-  subhook_get_trampoline(hook)
-
-proc install*(hook: Hook): int {.inline, discardable.} =
-  subhook_install(hook)
-
-proc isInstalled*(hook: Hook): int {.inline.} =
-  subhook_is_installed(hook)
-
-proc remove*(hook: Hook): int {.inline, discardable.} =
-  subhook_remove(hook)
+#[ High level templates ]#
+template initHook*(src, dest: pointer, flags: subhook_flags = NONE): Hook = subhook_new(src, dest, flags)
+template initHook*(src, dest: int, flags = NONE): Hook = subhook_new(cast[pointer](src), cast[pointer](dest), flags)
+template initHook*(src: pointer, dest: int, flags = NONE): Hook = initHook(src, cast[pointer](dest), flags)
+template initHook*(src: int, dest: pointer, flags = NONE): Hook = initHook(cast[pointer](src), dest, flags)
+template free*(hook: Hook) = subhook_free(hook)
+template getSource*(hook: Hook): pointer = subhook_get_src(hook)
+template getDest*(hook: Hook): pointer = subhook_get_dst(hook)
+template getTrampoline*(hook: Hook): pointer = subhook_get_trampoline(hook)
+template install*(hook: Hook): int = subhook_install(hook)
+template isInstalled*(hook: Hook): bool = subhook_is_installed(hook) > 0
+template remove*(hook: Hook): int = subhook_remove(hook)
 
 
 when isMainModule:
