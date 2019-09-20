@@ -1,5 +1,7 @@
 import macros
 
+converter toPointer*(x: int): pointer = cast[pointer](x)
+
 macro fptr*(body: untyped) : untyped =
   ## this marco will create a proc type based on input
   ## and then create a proc pointer to an address if specified
@@ -18,17 +20,18 @@ macro fptr*(body: untyped) : untyped =
   var
     typeSection = newNimNode(nnkTypeSection)
     typeDef = newNimNode(nnkTypeDef)
-    letSection = newNimNode(nnkLetSection)
+    varSection = newNimNode(nnkVarSection)
     identDef = newNimNode(nnkIdentDefs)
     pragma = newNimNode(nnkPragma)
 
   typeSection.add(typeDef)
-  letSection.add(identDef)
+  varSection.add(identDef)
 
   # pragma
   if body[4].kind == nnkPragma:
     pragma = body[4]
-  pragma.add(ident("noconv"))
+  else:
+    pragma.add(ident("noconv"))
 
   if isExported:
     typeDef.add(postfix(ident(procName), "*"))
@@ -51,4 +54,4 @@ macro fptr*(body: untyped) : untyped =
       .add(ident(procName))
       .add(body[6][0])
     )
-    result.add(letSection)
+    result.add(varSection)
