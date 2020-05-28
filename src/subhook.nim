@@ -1,11 +1,8 @@
-import os
-
 {.compile: "private/subhook/subhook.c".}
 {.passC: "-DSUBHOOK_STATIC".}
 {.pragma: subhook,
   cdecl,
   importc,
-  header: parentDir(currentSourcePath()) & "/private/subhook/subhook.h",
   discardable
 .}
 
@@ -39,8 +36,14 @@ proc subhook_remove*(hook: subhook_t): cint {.subhook.}
 
 
 #[ High level templates ]#
-template initHook*(src, dest: pointer, flags: subhook_flags = NONE): Hook = subhook_new(src, dest, flags)
-template free*(hook: Hook) = subhook_free(hook)
+proc initHook*(src, dest: pointer, install = false, flags: subhook_flags = NONE): Hook =
+  result = subhook_new(src, dest, flags)
+  if install:
+    subhook_install(result)
+
+template free*(hook: Hook) =
+  subhook_free(hook)
+  hook = nil
 template getSource*(hook: Hook): pointer = subhook_get_src(hook)
 template getDest*(hook: Hook): pointer = subhook_get_dst(hook)
 template getTrampoline*(hook: Hook): pointer = subhook_get_trampoline(hook)

@@ -31,11 +31,18 @@ macro fptr*(body: untyped) : untyped =
   if body[0].kind == nnkIdent:
     name = $body[0]
   else:
+    #[
+      #echo treeRepr body[0]
+    if body[0].kind == nnkAccQuoted:
+      name = $body[0][0]
+    else:
+      name = $body[0][1]
+    ]#
     name = $body[0][1]
     isExported = true
-  var prefix = "_" & $r.next()
-  procName = "proc_" & name & prefix
-  ptrName = "var_" & name & prefix
+  var suffix = "_" & $r.next()
+  procName = "proc_" & name & suffix
+  ptrName = "var_" & name & suffix
   #nameToProc[name] = procName
   if (nameToPointer.hasKey(name)):
     echo name & " is already defined, this may causes hooking to wrong address"
