@@ -11,18 +11,17 @@ type
   subhook_flags* {.pure.} = enum
     NONE
     SUBHOOK_64BIT_OFFSET = 1
-  Hook* = ptr subhook_struct
-  subhook_struct* {.bycopy.} = object
+  Hook* = subhook_t
+  subhook_t* {.bycopy, pure.} = ptr object
     installed*: int
     src*: pointer
     dst*: pointer
     flags*: subhook_flags
     code*: pointer
     trampoline*: pointer
-    jmp_size*: csize
-    trampoline_size*: csize
-    trampoline_len*: csize
-  subhook_t* = ptr subhook_struct
+    jmp_size*: csize_t
+    trampoline_size*: csize_t
+    trampoline_len*: csize_t
 
 #[ C API ]#
 proc subhook_new*(src, dst: pointer, flags: subhook_flags): subhook_t {.subhook.}
