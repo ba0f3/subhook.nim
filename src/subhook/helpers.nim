@@ -62,8 +62,6 @@ macro fptr*(body: untyped) : untyped =
   # pragma
   if body[4].kind == nnkPragma:
     pragma = body[4]
-  else:
-    pragma.add(ident("noconv"))
 
   if isExported:
     typeDef.add(postfix(ident(procName), "*"))
