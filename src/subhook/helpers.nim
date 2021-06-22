@@ -79,9 +79,13 @@ macro fptr*(body: untyped) : untyped =
   if body[6].kind == nnkStmtList and body[6][0].kind == nnkIntLit:
     if isExported:
       identDef.add(postfix(ident(ptrName), "*"))
-      aliasProc.name = postfix(ident(name), "*")
+      let procName = ident(name)
+      procName.copyLineInfo(body)
+      aliasProc.name = postfix(procName, "*")
     else:
-      identDef.add(ident(ptrName))
+      let ptrName = ident(ptrName)
+      ptrName.copyLineInfo(body)
+      identDef.add(ptrName)
 
 
     identDef.add(newEmptyNode())
